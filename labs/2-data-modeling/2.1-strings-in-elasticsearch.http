@@ -1,0 +1,72 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.first_name": "Steve"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.first_name.keyword": "steve"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.first_name.keyword": "Steve"
+    }
+  }
+}
+
+###
+GET {{host}}/_analyze
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "text": "United Kingdom",
+  "analyzer": "standard"
+}
+
+###
+GET {{host}}/_analyze
+Authorization:  Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "text": "Nodes and Shards",
+  "analyzer": "standard"
+}
+
+###
+GET {{host}}/_analyze
+Authorization:  Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "text": "Nodes and Shards",
+  "analyzer": "english"
+}

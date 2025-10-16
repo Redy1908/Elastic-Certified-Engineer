@@ -1,0 +1,191 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/blogs_fixed/_mapping
+Authorization: Basic elastic {{password}}
+
+###
+PUT {{host}}/blogs_fixed2
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "search_autors": {
+        "type": "text"
+      },
+      "@timestamp": {
+        "type": "date"
+      },
+      "authors": {
+        "properties": {
+          "company": {
+            "type": "keyword",
+            "copy_to": "search_autors"
+          },
+          "first_name": {
+            "type": "keyword"
+          },
+          "job_title": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            },
+            "copy_to": "search_autors"
+          },
+          "last_name": {
+            "type": "keyword"
+          },
+          "title": {
+            "type": "text",
+            "copy_to": "search_autors"
+          }
+        }
+      },
+      "category": {
+        "type": "keyword"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "english"
+      },
+      "locale": {
+        "type": "keyword"
+      },
+      "publish_date": {
+        "type": "date",
+        "format": "iso8601"
+      },
+      "seo": {
+        "type": "text",
+        "analyzer": "english"
+      },
+      "title": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        },
+        "analyzer": "english"
+      },
+      "url": {
+        "type": "keyword",
+        "doc_values": false
+      },
+      "versions": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/_reindex
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "source": {
+    "index": "blogs"
+  },
+  "dest": {
+    "index": "blogs_fixed2"
+  }
+}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "title": "duplicated"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["title"], 
+  "query": {
+    "match": {
+      "title": "duplicated"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["authors"], 
+  "query": {
+    "match": {
+      "authors.first_name": "Tim"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["authors"], 
+  "query": {
+    "match": {
+      "authors.job_title": "Director"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["authors"], 
+  "query": {
+    "match": {
+      "search_authors": "Tim director"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "top_job_titles": {
+      "terms": {
+        "field": "url",
+        "size": 10
+      }
+    }
+  }
+}
+
+
+
+

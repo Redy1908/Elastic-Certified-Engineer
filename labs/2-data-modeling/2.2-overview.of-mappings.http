@@ -1,0 +1,213 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+###
+POST {{host}}/sample_blog/_doc
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "@timestamp": "2021-03-10T16:00:00.000Z",
+  "abstract": "The Joy of Painting",
+  "author": "Bob Ross",
+  "body": "Painting should do one thing. It should put happiness in your heart. We'll take a little bit of Van Dyke Brown. Isn't that fantastic? You can just push a little tree out of your brush like that. Mix your color marbly don't mix it dead.",
+  "body_word_count": 55,
+  "category": "Painting",
+  "title": "Making Happy Little Trees",
+  "url": "/blog/happy-little-trees",
+  "published": true
+}
+
+###
+GET {{host}}/sample_blog/_mappings
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+###
+PUT {{host}}/test_blogs
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "abstract": {
+        "type": "text"
+      },
+      "author": {
+        "type": "keyword"
+      },
+      "body": {
+        "type": "text"
+      },
+      "body_word_count": {
+        "type": "integer"
+      },
+      "category": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "text"
+      },
+      "url": {
+        "type": "keyword"
+      },
+      "published": {
+        "type": "boolean"
+      }
+    }
+  }
+}
+
+  
+###
+POST {{host}}/test_blogs/_doc
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "@timestamp": "2021-03-10T16:00:00.000Z",
+  "abstract": "The Joy of Painting",
+  "author": "Bob Ross",
+  "body": "Painting should do one thing. It should put happiness in your heart. We'll take a little bit of Van Dyke Brown. Isn't that fantastic? You can just push a little tree out of your brush like that. Mix your color marbly don't mix it dead.",
+  "body_word_count": 55,
+  "category": "Painting",
+  "title": "Making Happy Little Trees",
+  "url": "/blog/happy-little-trees",
+  "published": "true"
+}
+
+###
+PUT {{host}}/blogs_fixed
+Authorization: Basic elastic {{password}}
+
+###
+GET {{host}}/blogs/_mappings
+Authorization: Basic elastic {{password}}
+
+###
+PUT {{host}}/blogs_fixed/_mapping
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "properties": {
+    "authors": {
+      "properties": {
+        "company": {
+          "type": "keyword"
+        },
+        "first_name": {
+          "type": "keyword"
+        },
+        "job_title": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "last_name": {
+          "type": "keyword"
+        },
+        "title": {
+          "type": "text"
+        }
+      }
+    },
+    "category": {
+      "type": "keyword"
+    },
+    "content": {
+      "type": "text"
+    },
+    "locale": {
+      "type": "keyword"
+    },
+    "publish_date": {
+      "type": "date",
+      "format": "iso8601"
+    },
+    "seo": {
+      "type": "text"
+    },
+    "title": {
+      "type": "text",
+      "fields": {
+        "keyword": {
+          "type": "keyword",
+          "ignore_above": 256
+        }
+      }
+    },
+    "url": {
+      "type": "keyword"
+    },
+    "versions": {
+      "type": "keyword"
+    }
+  }
+}
+
+###
+POST {{host}}/_reindex
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "source": {
+    "index": "blogs"
+  },
+  "dest": {
+    "index": "blogs_fixed"
+  }
+}
+
+###
+GET {{host}}/blogs_fixed/_count
+Authorization: Basic elastic {{password}}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.first_name": "clint"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.first_name": "clint"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.first_name": "Clint"
+    }
+  }
+}
