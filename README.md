@@ -1,20 +1,20 @@
 ## What will we do?
 
-In this guide, we will install an Elasticsearch and Kibana stack on a local Kubernetes cluster (Minikube) using the ECK (Elastic Cloud on Kubernetes) operator.
+We will install an Elasticsearch and Kibana stack on a local Kubernetes cluster (Minikube) using the ECK (Elastic Cloud on Kubernetes) operator to practice for the [Elastic Certified Engineer](https://www.elastic.co/training/elastic-certified-engineer-exam) exam.
 
 ## 0. Prerequisites
 
 - Helm installed
-- Minikube installed and running with at least 2/4 CPUs and 8GB of RAM:
-
-```console
-$ minikube start --cpus=4 --memory=8G
-```
-
-- Or you can edit the file [helm/eck/kielasticsearchbaelana.yml]() reducing the number of nodes to `1` and execute minikube with the following command:
+- Minikube installed and running:
 
 ```console
 $ minikube start
+```
+
+- If you want to use more elasticsearch nodes, edit the file `helm/eck/elasticsearch.yml` and change the `count` parameter. Make sure your minikube instance has enough resources to handle the number of nodes you want to create. You can start minikube with more resources like this:
+
+```console
+$ minikube start --cpus=4 --memory=8G
 ```
 
 ## 1. Preparation
@@ -37,9 +37,18 @@ $ helm upgrade --install elastic-operator elastic/eck-operator \
     --create-namespace
 ```
 
+Create a secret with a fixed password for the `elastic` user:
+
+```console
+$ kubectl create secret generic quickstart-es-elastic-user \
+  --from-literal=elastic=ElasticCertifiedEngineer \
+  -n elastic-system
+secret/elastic-credentials created
+```
+
 With ECK, you define your stack using Kubernetes manifests.
 
-A pre filled Helm values file for elasticsearch is provided at [helm/eck/kielasticsearchbaelana.yml]().
+A pre filled Helm values file for elasticsearch is provided at [helm/eck/elasticsearch.yml]().
 
 **`helm/eck/elasticsearch.yml`**
 ```yaml
@@ -51,9 +60,18 @@ spec:
   version: 9.1.5
   nodeSets:
   - name: default
-    count: 3
+    count: 1
     config:
       node.store.allow_mmap: false
+  http:
+    service:
+      spec:
+        type: LoadBalancer
+        ports:
+          - port: 9200
+            targetPort: 9200
+            protocol: TCP
+            name: https
 ```
 
 Now, apply the elasticsearch manifest to your cluster:
@@ -69,29 +87,9 @@ $ watch -n 2 kubectl get pods -n elastic-system
 NAME                            READY   STATUS    RESTARTS   AGE
 elastic-operator-0              1/1     Running   0          5m4s
 quickstart-es-default-0         1/1     Running   0          4m21s
-quickstart-es-default-1         1/1     Running   0          4m21s
-quickstart-es-default-2         1/1     Running   0          4m21s
 ```
 
-Retrieve the password for the `elastic` user:
-
-```console
-$ kubectl get secret quickstart-es-elastic-user \
-    -n elastic-system \
-    -o go-template='{{.data.elastic | base64decode}}'
-63QB9ewPU7p31eU45KQ00FCn
-```
-
-Retrieve the Elasticsearch url (leave the terminal open):
-
-```console
-minikube service quickstart-es-http -n elastic-system --url
-http://127.0.0.1:42837
-```
-
-You can now edit the labs files in the `labs/` folder replacing the `host` and `password` variables with the retrieved values.
-
-A pre filled Helm values file for kibana is provided at [helm/eck/elasticsearch.yml]().
+A pre filled Helm values file for kibana is provided at [helm/eck/kibana.yml]().
 
 **`helm/eck/kibana.yml`**
 ```yaml
@@ -107,7 +105,12 @@ spec:
   http:
     service:
       spec:
-        type: NodePort
+        type: LoadBalancer
+        ports:
+          - port: 5601
+            targetPort: 5601
+            protocol: TCP
+            name: https
 ```
 
 Now, apply the kibana manifest to your cluster:
@@ -123,27 +126,18 @@ $ watch -n 2 kubectl get pods -n elastic-system
 NAME                            READY   STATUS    RESTARTS   AGE
 elastic-operator-0              1/1     Running   0          5m4s
 quickstart-es-default-0         1/1     Running   0          4m21s
-quickstart-es-default-1         1/1     Running   0          4m21s
-quickstart-es-default-2         1/1     Running   0          4m21s
 quickstart-kb-86568f9d8-brzpb   1/1     Running   0          4m16s
 ```
 
-## 3. Access Credentials and UI
+## Access the stack
 
-Retrieve the password for the `elastic` user:
+Open a terminal and execute `minikube tunnel`. Leave the terminal open. You can now access the services using the following URLs:
 
-```console
-$ kubectl get secret quickstart-es-elastic-user \
-    -n elastic-system \
-    -o go-template='{{.data.elastic | base64decode}}'
-63QB9ewPU7p31eU45KQ00FCn
-```
+- **Elasticsearch:** [https://127.0.0.1:9200](https://127.0.0.1:9200)
+- **Kibana:** [https://127.0.0.1:5601](https://127.0.0.1:5601)
 
-Retrieve the Kibana url (leave the terminal open):
+Login with user `elastic` and the password `ElasticCertifiedEngineer`.
 
-```console
-$ minikube service quickstart-kb-http -n elastic-system --url
-http://192.168.49.2:31439
-```
+## Labs
 
-Use the retrieved password with the username `elastic` to login.
+All the labs for the Elastic Certified Engineer exam can be found in the `labs` folder. Each lab contains a `.http` file containing the requests you need to perform to complete the lab. You can use it to interact with your Elasticsearch cluster using the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) for VSCode, or you can use the [Dev Tools](https://127.0.0.1:5601/app/dev_tools) console in Kibana.

@@ -10,4 +10,9 @@ spec:
   http:
     service:
       spec:
-        type: NodePort
+        type: LoadBalancer
+        ports:
+          - port: 5601
+            targetPort: 5601
+            protocol: TCP
+            name: http

@@ -12,4 +12,9 @@ spec:
   http:
     service:
       spec:
-        type: NodePort
+        type: LoadBalancer
+        ports:
+          - port: 9200
+            targetPort: 9200
+            protocol: TCP
+            name: https
