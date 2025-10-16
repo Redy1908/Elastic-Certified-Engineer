@@ -1,0 +1,152 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["publish_date", "title"],
+  "query": {
+    "range": {
+      "publish_date": {
+        "gte": "2018-01-01"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["publish_date", "title"],
+  "query": {
+    "range": {
+      "publish_date": {
+        "gte": "2018-01-01",
+        "lt": "2019-01-01"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_count
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.job_title": "Director of Engineering"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["authors.job_title"],
+  "sort": [
+    {
+      "_score": {
+        "order": "asc"
+      }
+    }
+  ],
+  "query": {
+    "match": {
+      "authors.job_title": "Director of Engineering"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "term": {
+      "authors.job_title.keyword": "Director of Engineering"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["authors"],
+  "from": 78,
+  "query": {
+    "term": {
+      "authors.job_title.keyword": "Director of Engineering"
+    }
+  }
+}
+
+###
+POST {{host}}/blogs_fixed2/_async_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "function_score": {
+      "query": {
+        "match": {
+          "content": "to the blog and your query: you are both enjoying being on Elasticsearch "
+        }
+      },
+      "script_score": {
+        "script": {
+          "source": "int m = 1; double u = 1.0; for (int x = 0; x < m; ++x) { for (int y = 0; y < 10000; ++y) { u=Math.log(y); }} return u;"
+        }
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/blogs_fixed2/_async_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "function_score": {
+      "query": {
+        "match": {
+          "content": "to the blog and your query: you are both enjoying being on Elasticsearch "
+        }
+      },
+      "script_score": {
+        "script": {
+          "source": "int m = 100; double u = 1.0; for (int x = 0; x < m; ++x) { for (int y = 0; y < 10000; ++y) { u=Math.log(y); }} return u;"
+        }
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/_async_search/your_search_ID_here
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+###
+DELETE {{host}}/_async_search/your_search_ID_here
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+

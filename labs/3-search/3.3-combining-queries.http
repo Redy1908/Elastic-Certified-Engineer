@@ -1,0 +1,143 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "multi_match": {
+            "query": "meetups",
+            "fields": [
+              "content",
+              "title"
+            ]
+          }
+        }
+      ],
+      "filter": [
+        {
+          "range": {
+            "publish_date": {
+              "gt": "2016-06-01"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "content": "visualization"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "match": {
+            "content": "lens"
+          }
+        }
+      ],
+      "filter": [
+        {
+          "exists": {
+            "field": "versions"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["title", "seo", "versions"],
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "content": "visualization"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "match": {
+            "content": "lens"
+          }
+        }
+      ],
+      "filter": [
+        {
+          "exists": {
+            "field": "versions"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["title", "seo", "versions"],
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "content": "visualization"
+          }
+        }
+      ],
+      "must_not": [
+        {
+          "match": {
+            "content": "lens"
+          }
+        }
+      ],
+      "filter": [
+        {
+          "exists": {
+            "field": "versions"
+          }
+        }
+      ],
+      "should": [
+        {
+          "match": {
+            "versions": "8"
+          }
+        }
+      ]
+    }
+  }
+}
+

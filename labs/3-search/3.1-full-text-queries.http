@@ -1,0 +1,167 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "content": "open source"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search?size=15
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "content": "open source"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search?size=15
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["title"],
+  "query": {
+    "match": {
+      "content": "open source"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search?size=15
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "content": "open source"
+    }
+  },
+  "fields": ["title"]
+}
+
+###
+GET {{host}}/blogs_fixed2/_search?size=15
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "content": {
+        "query": "open source",
+        "operator": "and"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match_phrase": {
+      "content": "open source"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["title", "publish_date"],
+  "size": 5,
+  "sort": [
+    {
+      "publish_date": {
+        "order": "desc"
+      }
+    }
+  ],
+  "query": {
+    "match_phrase": {
+      "content": "open source"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": ["title", "publish_date"],
+  "size": 5,
+  "from": 5,
+  "sort": [
+    {
+      "publish_date": {
+        "order": "desc"
+      }
+    }
+  ],
+  "query": {
+    "match_phrase": {
+      "content": "open source"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "multi_match": {
+      "query": "performance",
+      "fields": [
+        "title",
+        "seo",
+        "content"
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "multi_match": {
+      "query": "performance tuning",
+      "type": "phrase",
+      "fields": [
+        "title",
+        "seo",
+        "content"
+      ]
+    }
+  }
+}
