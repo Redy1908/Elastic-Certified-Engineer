@@ -1,0 +1,68 @@
+@host = https://127.0.0.1:42837
+@password = 5Bo3Nz3Arc98raH1029bP4RU
+@noRejectUnauthorized = true
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "aggs": {
+    "first_blog": {
+      "min": {
+        "field": "publish_date"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/blogs/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "first_blog": {
+      "min": {
+        "field": "publish_date"
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/_query
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": "FROM blogs | STATS count = COUNT(*) BY authors.title | SORT count DESC | LIMIT 10"
+}
+
+###
+POST {{host}}/_query?format=txt
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": "FROM blogs | STATS count = COUNT(*) BY authors.title | SORT count DESC | LIMIT 10"
+}
+

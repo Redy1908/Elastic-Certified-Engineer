@@ -1,0 +1,63 @@
+@host = https://127.0.0.1:42837
+@password = 5Bo3Nz3Arc98raH1029bP4RU
+@noRejectUnauthorized = true
+
+###
+PUT {{host}}/my_blogs/_doc/1
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "id": "1",
+  "title": "Better query execution",
+  "category": "Engineering",
+  "date":"July 15, 2015",
+  "author":{
+    "first_name": "Adrien",
+    "last_name": "Grand",
+    "company": "Elastic"
+  }
+}
+
+###
+PUT {{host}}/my_blogs/_doc/2
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "id": "2",
+  "title": "The Story of Sense",
+  "date":"May 28, 2015",
+  "author":{
+    "first_name": "Boaz",
+    "last_name": "Leskes"
+  }
+}
+
+###
+POST {{host}}/my_blogs/_doc/
+Authorization: Basic elastic {{password}} 
+Content-Type: application/json
+
+{
+  "id": "57",
+  "title": "Phrase Queries: a world without Stopwords",
+  "date":"March 7, 2016",
+  "category": "Engineering",
+  "author":{
+    "first_name": "Gabriel",
+    "last_name": "Moskovicz"
+  }
+}
+
+###
+GET {{host}}/my_blogs/_doc/1
+Authorization: Basic elastic {{password}}
+
+###
+DELETE {{host}}/my_blogs/_doc/1
+Authorization: Basic elastic {{password}}
+
+###
+DELETE {{host}}/my_blogs
+Authorization: Basic elastic {{password}}

@@ -1,0 +1,15 @@
+@host = https://127.0.0.1:42837
+@password = 5Bo3Nz3Arc98raH1029bP4RU
+@noRejectUnauthorized = true
+
+###
+GET {{host}}/
+Authorization: Basic elastic {{password}}
+
+###
+GET {{host}}/_cat/indices/*,-.*?v
+Authorization: Basic elastic {{password}}
+
+###
+GET {{host}}/kibana_sample_data_ecommerce/_search
+Authorization: Basic elastic {{password}}
