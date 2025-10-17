@@ -140,4 +140,7 @@ Login with user `elastic` and the password `ElasticCertifiedEngineer`.
 
 ## Labs
 
-All the labs for the Elastic Certified Engineer exam can be found in the `labs` folder. Each lab contains a `.http` file containing the requests you need to perform to complete the lab. You can use it to interact with your Elasticsearch cluster using the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) for VSCode, or you can use the [Dev Tools](https://127.0.0.1:5601/app/dev_tools) console in Kibana.
+All the labs for the Elastic Certified Engineer exam can be found in the `labs` folder. Each lab contains 2 files:
+- a `.http` file containing the requests you need to perform to complete the lab. You can use it to interact with your Elasticsearch cluster using the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) for VSCode, or you can use the [Dev Tools](https://127.0.0.1:5601/app/dev_tools) console in Kibana.
+
+- a `.md` file containing the documentation for the lab.
