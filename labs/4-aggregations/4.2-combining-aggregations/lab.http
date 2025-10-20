@@ -1,0 +1,164 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "response_code.keyword": {
+        "value": "404"
+      }
+    }
+  },
+  "aggs": {
+    "logs_by_week": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "week"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "average_request_time": {
+      "avg": {
+        "field": "runtime_sec"
+      }
+    },
+    "median": {
+      "percentiles": {
+        "field": "runtime_sec",
+        "percents": [
+          50
+        ]
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "status_code_buckets": {
+      "terms": {
+        "field": "response_code.keyword"
+      },
+      "aggs": {
+        "runtime": {
+          "percentiles": {
+            "field": "runtime_sec",
+            "percents": [
+              50
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "status_code_buckets": {
+      "terms": {
+        "field": "response_code.keyword",
+        "order": {
+          "runtime.50": "desc"
+        }
+      },
+      "aggs": {
+        "runtime": {
+          "percentiles": {
+            "field": "runtime_sec",
+            "percents": [
+              50
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "logs_by_week": {
+      "date_histogram": {
+          "field": "@timestamp",
+          "calendar_interval": "month"
+      },
+      "aggs": {
+        "response": {
+          "terms": {
+            "field": "response_code.keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0, 
+  "aggs": {
+    "runtime_avg_per_month": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "month"
+      },
+      "aggs": {
+        "avg_runtime": {
+          "avg": {
+            "field": "runtime_sec"
+          }
+        }
+      }
+    },
+    "max_avg_runtime": {
+      "max_bucket": {
+        "buckets_path": "runtime_avg_per_month>avg_runtime" 
+      }
+    }
+  }
+}
+
+
+
+
+

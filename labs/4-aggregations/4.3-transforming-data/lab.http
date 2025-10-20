@@ -1,0 +1,18 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "popular_urls": {
+      "terms": {
+        "field": "url.keyword"
+      }
+    }
+  }
+}

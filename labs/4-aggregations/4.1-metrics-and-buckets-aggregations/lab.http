@@ -1,0 +1,165 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "fastest_request_time": {
+      "min": {
+        "field": "runtime_sec"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "request_time_stats": {
+      "stats": {
+        "field": "runtime_sec"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "runtime_median_and_90": {
+      "percentiles": {
+        "field": "runtime_sec",
+        "percents": [
+          50,
+          90
+        ]
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "runtime_goal": {
+      "percentile_ranks": {
+        "field": "runtime_sec",
+        "values": [
+          5
+        ]
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "my_url_value_count": {
+      "cardinality": {
+        "field": "url.keyword"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "method_buckets": {
+      "terms": {
+        "field": "method.keyword"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "method_buckets": {
+      "terms": {
+        "field": "method.keyword",
+        "order": {
+          "_key": "asc"
+        }
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "logs_by_week": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "week"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/web_traffic/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "logs_by_week": {
+      "date_histogram": {
+        "field": "@timestamp",
+        "calendar_interval": "second"
+      }
+    }
+  }
+}
+
+
+
+
+
+
+
