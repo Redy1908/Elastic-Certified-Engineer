@@ -1,0 +1,168 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+POST {{host}}/_reindex
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "source": {
+    "remote": {
+      "host": "https://node5:9200",
+      "username": "training",
+      "password": "nonprodpwd"
+    },
+    "index": "blogs"
+  },
+  "dest": {
+    "index": "blogs_fixed2"
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_count
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+###
+POST {{host}}/blogs_fixed2/_delete_by_query
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "query"{
+    "match" {
+      "versions": "Pre 1"
+    }
+  }
+}
+
+PUT {{host}}/web_traffic_fixed
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "settings": {
+    "default_pipeline": "web_traffic_pipeline"
+  },
+  "mappings": {
+    "properties": {
+      "@timestamp": {
+        "type": "date"
+      },
+      "http": {
+        "properties": {
+          "request": {
+            "properties": {
+              "method": {
+                "type": "keyword"
+              }
+            }
+          },
+          "response": {
+            "properties": {
+              "status_code": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      },
+      "ip": {
+        "type": "ip"
+      },
+      "runtime_sec": {
+        "type": "long"
+      },
+      "bytes_sent": {
+        "type": "long"
+      },
+      "url": {
+        "type": "keyword"
+      },
+      "user_agent": {
+        "properties": {
+          "device": {
+            "properties": {
+              "name": {
+                "type": "keyword"
+              }
+            }
+          },
+          "name": {
+            "type": "keyword"
+          },
+          "original": {
+            "type": "keyword",
+            "fields": {
+              "text": {
+                "type": "text"
+              }
+            }
+          },
+          "version": {
+            "type": "keyword"
+          },
+          "os": {
+            "properties": {
+              "name": {
+                "type": "keyword"
+              },
+              "full": {
+                "type": "keyword"
+              },
+              "version": {
+                "type": "keyword"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/_reindex
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "source": {
+    "index": "web_traffic",
+    "query": {
+      "match": {
+        "@timestamp": "2015-05-28T19:44:05.000Z"
+      }
+    }
+  },
+  "dest": {
+    "index": "web_traffic_fixed"
+  }
+}
+
+###
+GET {{host}}/web_traffic_fixed/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+###
+POST web_traffic_fixed/_delete_by_query
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+###
+POST _reindex?wait_for_completion=false
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "source": {
+    "index": "web_traffic"
+  },
+  "dest": {
+    "index": "web_traffic_fixed"
+  }
+}
+

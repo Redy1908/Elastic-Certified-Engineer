@@ -1,0 +1,125 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "NAME": {
+      "terms": {
+        "field": "category",
+        "size": 10
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/categories/_bulk
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{"create":{}}
+{"uid": "blt26ff0a1ade01f60d","title":"customers"}
+{"create":{}}
+{"uid": "bltfaae4466058cc7d6","title": "releases"}
+{"create":{}}
+{"uid": "bltc253e0851420b088","title": "culture"}
+{"create":{}}
+{"uid": "blt0c9f31df4f2a7a2b","title": "company-news"}
+{"create":{}}
+{"uid": "blt1d90b8e0edce3ea9","title": "how-to"}
+{"create":{}}
+{"uid": "blt3f90b5g1edce6vd4","title": "product"}
+{"create":{}}
+{"uid": "blt1dcv54a0edce456a","title": "business"}
+
+
+###
+PUT {{host}}/_enrich/policy/categories_policy
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "match": {
+    "indices": "categories",
+    "match_field": "uid",
+    "enrich_fields": ["title"]
+  }
+}
+
+###
+POST {{host}}/_enrich/policy/categories_policy/_execute
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+###
+PUT {{host}}/_ingest/pipeline/categories_pipeline
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+
+{
+  "processors": [
+    {
+      "enrich": {
+        "field": "category",
+        "policy_name": "categories_policy",
+        "target_field": "category_title",
+        "ignore_missing": true
+      }
+    },
+    {
+      "remove": {
+        "field": "category",
+        "ignore_missing": true
+      }
+    }
+  ]
+}
+
+###
+PUT {{host}}/blogs_fixed2/_mapping
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "properties": {
+    "category_title": {
+      "properties": {
+        "title": {
+          "type": "keyword"
+        },
+        "uid": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
+
+###
+POST {{host}}/blogs_fixed2/_update_by_query?pipeline=categories_pipeline&wait_for_completion=false
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "size": 0,
+  "aggs": {
+    "blogs_by_category": {
+      "terms": {
+        "field": "category_title.title",
+        "size": 10
+      }
+    }
+  }
+}

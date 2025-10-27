@@ -1,0 +1,189 @@
+@host = https://127.0.0.1:9200
+@password = ElasticCertifiedEngineer
+@noRejectUnauthorized = true
+
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "script": {
+            "script": "return true";
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "script": {
+            "script": "return doc['versions'].size() >= 3;"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "_source": "authors", 
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "script": {
+            "script": """
+              def authors = doc['authors.last_name'];
+              for (author in authors) {
+                if (author.startsWith('K')) {
+                  return true;
+                }
+              }
+              return false;
+            """
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "script": {
+            "script": "return doc['title.keyword'].value.length() >= 200;"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+{
+  "size": 0,
+  "runtime_mappings": {
+    "day_of_week": {
+      "type": "keyword",
+      "script": {
+        "source": "emit(doc['publish_date'].value.getDayOfWeekEnum().toString())"
+      }
+    }
+  },
+  "aggs": {
+    "top_days": {
+      "terms": {
+        "field": "day_of_week"
+      }
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "script": {
+            "script": "return doc['url'].value.length() >= 100;"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "runtime_mappings": {
+    "url": {
+      "type": "keyword"
+    }
+  },
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "script": {
+            "script": "return doc['url'].value.length() >= 100;"
+          }
+        }
+      ]
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "runtime_mappings": {
+    "authors.title": {
+      "type": "keyword"
+    }
+  },
+  "query": {
+    "match": {
+      "authors.title": "Jongmin Kim"
+    }
+  }
+}
+
+###
+GET {{host}}/blogs_fixed2/_search
+Authorization: Basic elastic {{password}}
+Content-Type: application/json
+
+{
+  "query": {
+    "match": {
+      "authors.title": "Jongmin Kim"
+    }
+  }
+}
+
+
+
+
+
